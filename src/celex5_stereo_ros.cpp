@@ -1,9 +1,5 @@
 #include "celex5_ros.h"
-#include <pthread.h>
-#include <chrono>   
 
-static const std::string OPENCV_WINDOW = "Image window";
-static const std::string OPENCV_WINDOW_1 = "Image window_1";
 class Celex5StereoRos : public CeleX5DataManager {
 public:
   std::vector<EventData> vecEvent_;
