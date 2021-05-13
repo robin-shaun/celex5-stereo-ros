@@ -11,19 +11,3 @@
 
 #define MAT_ROWS 800
 #define MAT_COLS 1280
-namespace celex_ros
-{
-    class CelexRos{
-        public:
-
-        CelexRos();
-        ~CelexRos();
-
-        int initDevice();
-        void setSensorParams();
-        void grabEventData(CeleX5ProcessedData *pSensorData, celex5_msgs::eventVector& msg);
-
-        private:
-        celex5_msgs::event event_;
-    };
-}

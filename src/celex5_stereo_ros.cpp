@@ -4,8 +4,7 @@
 
 static const std::string OPENCV_WINDOW = "Image window";
 static const std::string OPENCV_WINDOW_1 = "Image window_1";
-namespace celex_ros_callback {
-class CelexRosCallBackNode : public CeleX5DataManager {
+class Celex5StereoRos : public CeleX5DataManager {
 public:
   std::vector<EventData> vecEvent_;
   cv::Mat event_frame_;
@@ -16,14 +15,14 @@ public:
   CX5SensorDataServer *m_pServer_;
   CeleX5 *celex_;
 
-  CelexRosCallBackNode(CX5SensorDataServer *pServer){
+  Celex5StereoRos(CX5SensorDataServer *pServer){
     // pthread_mutex_init(&frame_lock,NULL);
     // pthread_mutex_init(&event_vec_lock,NULL);
     m_pServer_ = pServer;
     m_pServer_->registerData(this, CeleX5DataManager::CeleX_Frame_Data);
   }
 
-  ~CelexRosCallBackNode() {
+  ~Celex5StereoRos() {
     pthread_mutex_destroy(&frame_lock);
     pthread_mutex_destroy(&event_vec_lock);
     m_pServer_->unregisterData(this, CeleX5DataManager::CeleX_Frame_Data);
@@ -38,7 +37,7 @@ public:
 
 
 // the callback update function
-void CelexRosCallBackNode::onFrameDataUpdated(
+void Celex5StereoRos::onFrameDataUpdated(
     CeleX5ProcessedData *pSensorData) {
 
   // get event_frame
@@ -51,25 +50,24 @@ void CelexRosCallBackNode::onFrameDataUpdated(
   pthread_mutex_unlock(&event_vec_lock);
   }
 
-cv::Mat CelexRosCallBackNode::getFrame(){
+cv::Mat Celex5StereoRos::getFrame(){
   pthread_mutex_lock(&frame_lock);
   auto tmp=this->event_frame_.clone(); //clone为深拷贝
   pthread_mutex_unlock(&frame_lock);
   return tmp; //mat有自己的数据管理，拷贝代价低
 }
 
-std::vector<EventData> CelexRosCallBackNode::getEventVector(){
+std::vector<EventData> Celex5StereoRos::getEventVector(){
   pthread_mutex_lock(&event_vec_lock);
   auto tmp=this->vecEvent_; //vector默认是深拷贝
   pthread_mutex_unlock(&event_vec_lock);
   return tmp; //这里可以尝试用std::move 来减少一次拷贝
 }
 
-}
 
 // std::vector<EventData> events[2];
 // cv::Mat event_frame[2];
-celex_ros_callback::CelexRosCallBackNode *celex_ros_event[2];
+Celex5StereoRos *celex_ros_event[2];
 
 struct publisher_with_id
 {
@@ -136,8 +134,8 @@ int main(int argc, char **argv) {
   pCelex_->setSensorFixedMode(mode, 0);
   pCelex_->setSensorFixedMode(mode, 1);
 
-  celex_ros_event[0] = new celex_ros_callback::CelexRosCallBackNode(pCelex_->getSensorDataServer(0));
-  celex_ros_event[1]= new celex_ros_callback::CelexRosCallBackNode(pCelex_->getSensorDataServer(1));
+  celex_ros_event[0] = new Celex5StereoRos(pCelex_->getSensorDataServer(0));
+  celex_ros_event[1]= new Celex5StereoRos(pCelex_->getSensorDataServer(1));
 
   // events[0] = celex_ros_0->vecEvent_;
   // events[1] = celex_ros_1->vecEvent_;
