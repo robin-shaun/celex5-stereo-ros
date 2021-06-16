@@ -203,6 +203,7 @@ void *publish_events(void *arg){
   publisher = (struct publisher_with_id *) arg;
   celex5_msgs::eventVector event_vector;
   ros::Rate loop_rate(1e6/publisher->event_frame_time);
+  int tmp = 0;
   while (publisher->node.ok()) {
       auto data=  celex_ros_event[publisher->id]->getEventVector();
       int dataSize = data.size();
@@ -212,24 +213,23 @@ void *publish_events(void *arg){
         event_.x = data[i].row;
         event_.y = data[i].col;
         event_.brightness = 255;
+        event_.timestamp.sec = floor(data[i].t_increasing/5e4);
+        event_.timestamp.nsec = data[i].t_increasing%50000*2e4;
         event_vector.events.push_back(event_);
+        // if (floor(data[i].t_increasing/5e4) == tmp && publisher->id == 0)
+        // {
+        //   std::cout << "master: " << data[i].t_increasing/5e4 << std::endl;
+        //   tmp++ ;
+        // }
+        // if (floor(data[i].t_increasing/5e4) == tmp && publisher->id == 1)
+        // {
+        //   std::cout << "slave: " << data[i].t_increasing/5e4 << std::endl;
+        //   tmp++ ;
+        // }
       }
       publisher->pub.publish(event_vector);
       event_vector.events.clear();
 
-      // int dataSize = events[publisher->id].size();
-      // event_vector.vectorLength = dataSize;
-      // celex5_msgs::event event_;
-      // for (int i = 0; i < dataSize; i++) {
-      //   event_.x = events[publisher->id][i].row;
-      //   event_.y = events[publisher->id][i].col;
-      //   event_.brightness = 255;
-      //   event_vector.events.push_back(event_);
-      // }
-      // publisher->pub.publish(event_vector);
-      // event_vector.events.clear();
-
-    // ros::spinOnce();
     loop_rate.sleep();      
     }
 }
