@@ -1,9 +1,9 @@
 <launch>
   <node name="celex_ros" pkg="celex5_stereo" type="celex5_stereo" output="screen" >
-    <param name="celex_mode" value="Event_Address_Only_Mode" />
+    <param name="celex_mode" value="Full_Picture_Mode" />
     <param name="event_pic_type" value="EventBinaryPic" />
     <param name="threshold" value="170" />
     <param name="clock_rate" value="80" />
-    <param name="event_frame_time" value="10000" />
+    <param name="event_frame_time" value="250000" />
   </node>
 </launch>
